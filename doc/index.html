@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Spring AI AgentCore Observability - Documentation</title>
-<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+
 <style>
 :root{--bg:#0d1117;--surface:#161b22;--surface2:#1c2333;--border:#30363d;--text:#e6edf3;--muted:#8b949e;--accent:#58a6ff;--green:#3fb950;--yellow:#d29922;--red:#f85149;--purple:#bc8cff;--cyan:#39d2c0;--orange:#f0883e}
 *{margin:0;padding:0;box-sizing:border-box}
@@ -137,24 +137,7 @@ Community proposal: <a href="https://github.com/spring-ai-community/community/is
 <!-- ================================================================ -->
 <h2 id="s2"><span class="sn">2.</span> Architecture</h2>
 
-<div class="mermaid">
-graph LR
-  A["Client<br>POST /invocations"] --> B["AgentCore<br>InvocationsController"]
-  B --> C["AOP Aspect<br>intercepts"]
-  C --> D["Your Agent<br>@AgentCoreInvocation"]
-  D --> E["AWS Bedrock"]
-  E --> D
-  D --> C
-  C --> F["Enrich Span<br>gen_ai.* attributes"]
-  F --> G["Record Histogram<br>token metrics"]
-  F --> H["PiiMaskingSpanExporter"]
-  H --> I["Regex Redaction"]
-  I --> J["Clean Span to<br>OTLP Collector"]
-  style A fill:#1a2a3a,stroke:#388bfd,color:#e6edf3
-  style E fill:#1a3a2a,stroke:#26a641,color:#e6edf3
-  style H fill:#3a2a1a,stroke:#9e6a03,color:#e6edf3
-  style J fill:#1a3a2a,stroke:#26a641,color:#e6edf3
-</div>
+<div class="mermaid"><img src="images/architecture.png" alt="Architecture diagram showing request flow from Client through AgentCore Controller, AOP Aspect, Agent, AWS Bedrock, and back through span enrichment, histogram recording, PII masking, to OTLP Collector" style="max-width:100%;height:auto;"></div>
 <p class="cap"><strong>How it works:</strong> A client sends a prompt to <code>/invocations</code>. AgentCore's controller receives it. The AOP aspect wraps the call, creating an OpenTelemetry span. Your agent service calls Bedrock and gets a <code>ChatResponse</code> with the model's reply and token counts. The aspect extracts GenAI attributes (provider, model, tokens, finish reasons) and sets them on the span. It records token counts into a histogram metric. When the span is exported, the <code>PiiMaskingSpanExporter</code> applies regex redaction for emails, SSNs, credit cards, and phones, then forwards the clean span to your collector.</p>
 
 <!-- ================================================================ -->
@@ -165,19 +148,7 @@ graph LR
 <h3>3.1 Auto-Configuration</h3>
 <p>The entry point is <code>AgentCoreObservabilityAutoConfiguration</code>, registered via the standard <code>META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports</code> file. Spring Boot discovers it at startup. The class is annotated with <code>@ConditionalOnClass(AgentCoreInvocation.class)</code>, so it only activates when the AgentCore starter (<code>spring-ai-bedrock-agentcore-starter</code>) is on the classpath. If you remove AgentCore, this library does nothing.</p>
 
-<div class="mermaid">
-graph TD
-  A["Spring Boot starts"] --> B{"AgentCoreInvocation.class<br>on classpath?"}
-  B -- Yes --> C["Auto-config activates"]
-  C --> D["PiiMasker bean<br>regex patterns compiled once"]
-  C --> E["AutoConfigurationCustomizerProvider<br>wraps SpanExporter with PiiMaskingSpanExporter"]
-  C --> F["Tracer + Meter beans<br>scoped to observability module"]
-  C --> G["AOP Aspect bean<br>targets AgentCoreInvocationsController"]
-  B -- No --> H["Library dormant<br>no beans created"]
-  style B fill:#1a2a3a,stroke:#388bfd,color:#e6edf3
-  style C fill:#1a3a2a,stroke:#26a641,color:#e6edf3
-  style H fill:#2a1a1a,stroke:#f85149,color:#e6edf3
-</div>
+<div class="mermaid"><img src="images/auto-configuration.png" alt="Auto-configuration flow diagram showing conditional activation based on AgentCoreInvocation class presence on classpath" style="max-width:100%;height:auto;"></div>
 <p class="cap"><strong>Conditional activation:</strong> When AgentCore is present, four beans are created: (1) <code>PiiMasker</code> compiles regex patterns once at startup, (2) an <code>AutoConfigurationCustomizerProvider</code> wraps whatever span exporter is configured (OTLP, logging, etc.) with the PII-masking wrapper, (3) a <code>Tracer</code> and <code>Meter</code> scoped to this library, and (4) the AOP aspect. When AgentCore is absent, zero beans are registered.</p>
 
 <h3>3.2 Spring AOP - Why the Controller, Not the Agent Bean</h3>
@@ -218,49 +189,13 @@ graph TD
 <!-- ================================================================ -->
 <h2 id="s4"><span class="sn">4.</span> GenAI Span Attributes</h2>
 
-<div class="mermaid">
-graph TD
-  CR["ChatResponse"] --> M["ChatResponseMetadata"]
-  CR --> G["List of Generations"]
-  CR --> TC["hasToolCalls()"]
-  M --> MD["getModel()"]
-  M --> U["getUsage()"]
-  M --> CA["get('cacheReadInputTokens')"]
-  U --> PT["getPromptTokens()"]
-  U --> CT["getCompletionTokens()"]
-  G --> GM["Generation.getMetadata()"]
-  GM --> FR["getFinishReason()"]
-  MD -->|"gen_ai.request.model<br>gen_ai.response.model"| S["Span Attributes"]
-  PT -->|"gen_ai.usage.input_tokens<br>(+ cache tokens)"| S
-  CT -->|"gen_ai.usage.output_tokens"| S
-  CA -->|"added to input total"| S
-  FR -->|"gen_ai.response.finish_reasons"| S
-  TC -->|"gen_ai.operation.name<br>chat or execute_tool"| S
-  style CR fill:#1a2a3a,stroke:#388bfd,color:#e6edf3
-  style S fill:#1a3a2a,stroke:#26a641,color:#e6edf3
-</div>
+<div class="mermaid"><img src="images/genai-attributes.png" alt="GenAI span attributes mapping from ChatResponse to OpenTelemetry span attributes" style="max-width:100%;height:auto;"></div>
 <p class="cap"><strong>Mapping:</strong> The aspect reads the <code>ChatResponse</code> returned by Bedrock. Model name goes to <code>gen_ai.request.model</code> and <code>gen_ai.response.model</code>. Prompt tokens + cache read tokens become <code>gen_ai.usage.input_tokens</code>. Completion tokens become <code>gen_ai.usage.output_tokens</code>. Finish reasons are collected from each Generation. If the response has tool calls, the operation is <code>execute_tool</code>; otherwise <code>chat</code>. Provider and system are always <code>aws.bedrock</code>.</p>
 
 <!-- ================================================================ -->
 <h2 id="s5"><span class="sn">5.</span> PII Masking</h2>
 
-<div class="mermaid">
-graph LR
-  A["Raw Span<br>(may contain PII)"] --> B["PiiMaskingSpanExporter"]
-  B --> C["MaskingSpanData wrapper"]
-  C --> D["PiiMasker.mask()"]
-  D --> E["SSN: ###-##-####"]
-  D --> F["Email: j***@***.com"]
-  D --> G["Card: 4111-****-****-1111"]
-  D --> H["Phone: ###-###-####"]
-  E --> K["Clean Span"]
-  F --> K
-  G --> K
-  H --> K
-  K --> L["Delegate Exporter"]
-  style A fill:#2a1a1a,stroke:#f85149,color:#e6edf3
-  style K fill:#1a3a2a,stroke:#26a641,color:#e6edf3
-</div>
+<div class="mermaid"><img src="images/pii-masking.png" alt="PII masking pipeline showing raw span flowing through PiiMaskingSpanExporter, MaskingSpanData, PiiMasker to produce clean span" style="max-width:100%;height:auto;"></div>
 <p class="cap"><strong>Pipeline:</strong> Every span passes through <code>PiiMaskingSpanExporter</code> before export. It wraps each <code>SpanData</code> in a <code>MaskingSpanData</code> decorator that lazily masks all string span attributes and selectively masks event attributes (prompt, completion, password keys, <code>gen_ai.content.*</code> events). Four regex patterns run in sequence: SSN, credit card (13-19 digits, keeps first/last 4), email, and US phone. Results are cached per span.</p>
 
 <div class="card">
@@ -416,45 +351,7 @@ My email is jane@example.com and SSN is 123-45-6789. Just say OK.</code></pre>
 <!-- SEQUENCE DIAGRAM -->
 <h3>Full Sequence - What Happened During the Tests</h3>
 
-<div class="mermaid">
-sequenceDiagram
-  participant T as JUnit Test
-  participant M as MockMvc
-  participant C as AgentCore Controller
-  participant A as AOP Aspect
-  participant S as RealBedrockAgentService
-  participant B as AWS Bedrock (us-east-1)<br>Claude 3 Haiku
-  participant E as InMemorySpanExporter<br>+ PiiMasker
-
-  Note over T,E: Test 1 - Token Count Verification
-  T->>M: POST /invocations<br>"What is 2 plus 2? Answer in one word."
-  M->>C: handleTextInvocation()
-  C->>A: @Around intercept - creates span
-  A->>S: invoke(prompt)
-  S->>B: HTTPS to Bedrock Converse API
-  B-->>S: ChatResponse: "Four."<br>promptTokens=21, completionTokens=5
-  S-->>A: ChatResponse
-  A->>A: span.setAttribute(gen_ai.usage.input_tokens, 21)
-  A->>A: span.setAttribute(gen_ai.usage.output_tokens, 5)
-  A->>A: span.addEvent(gen_ai.content.prompt)
-  A-->>C: return response
-  C-->>M: HTTP 200
-  M-->>T: "Four."
-  A->>E: export span (PII masking applied)
-  T->>E: assert input_tokens=21, output_tokens=5 ✓
-
-  Note over T,E: Test 2 - PII Masking Verification
-  T->>M: POST /invocations<br>"My email is jane@example.com<br>and SSN is 123-45-6789"
-  M->>C: handleTextInvocation()
-  C->>A: @Around intercept
-  A->>S: invoke(prompt with PII)
-  S->>B: HTTPS to Bedrock
-  B-->>S: ChatResponse
-  S-->>A: ChatResponse
-  A->>A: span.addEvent(prompt = raw text with PII)
-  A->>E: PiiMaskingSpanExporter masks prompt:<br>jane@example.com → j***@***.com<br>123-45-6789 → ###-##-####
-  T->>E: assert: no raw PII in span ✓<br>assert: masked values present ✓
-</div>
+<div class="mermaid"><img src="images/sequence-diagram.png" alt="Sequence diagram showing the full test flow for both Token Count Verification and PII Masking tests through MockMvc, AgentCore Controller, AOP Aspect, RealBedrockAgentService, AWS Bedrock, and InMemorySpanExporter" style="max-width:100%;height:auto;"></div>
 <p class="cap"><strong>Sequence:</strong> Both tests follow the same path: JUnit sends an HTTP POST via MockMvc, which hits the AgentCore controller. The AOP aspect intercepts, creates a span, and lets the call proceed to the real agent service. The agent service makes a real HTTPS call to Bedrock in us-east-1. When the response returns, the aspect enriches the span with GenAI attributes and records metrics. The span is then exported through the PII masking wrapper. Test 1 asserts the token counts match what Bedrock returned. Test 2 asserts that PII in the prompt was redacted before the span reached the exporter.</p>
 
 <!-- ================================================================ -->
@@ -742,8 +639,6 @@ mvn test -Dtest="AgentCoreObservabilityIntegrationTest"</code></pre>
 </footer>
 
 </div>
-<script>
-mermaid.initialize({startOnLoad:true,theme:'dark',themeVariables:{primaryColor:'#1a2a3a',primaryTextColor:'#e6edf3',primaryBorderColor:'#388bfd',lineColor:'#30363d',secondaryColor:'#161b22',tertiaryColor:'#1c2333',fontFamily:'-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif',fontSize:'13px'}});
-</script>
+
 </body>
 </html>
