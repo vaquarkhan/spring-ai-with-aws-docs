@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Spring AI AgentCore Observability - Documentation</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+:root{--bg:#0d1117;--surface:#161b22;--surface2:#1c2333;--border:#30363d;--text:#e6edf3;--muted:#8b949e;--accent:#58a6ff;--green:#3fb950;--yellow:#d29922;--red:#f85149;--purple:#bc8cff;--cyan:#39d2c0;--orange:#f0883e}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.8;font-size:15px}
+.wrap{max-width:1100px;margin:0 auto;padding:2rem 1.5rem}
+a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
+p{margin:.6rem 0}
+h1{font-size:2rem;margin-bottom:.2rem;background:linear-gradient(135deg,var(--accent),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+h2{font-size:1.35rem;margin:2.8rem 0 .8rem;padding-bottom:.4rem;border-bottom:1px solid var(--border);color:var(--cyan)}
+h3{font-size:1.05rem;margin:1.6rem 0 .5rem;color:var(--purple)}
+.sub{color:var(--muted);font-size:.92rem;margin-bottom:1.8rem}
+.badge{display:inline-block;padding:2px 10px;border-radius:12px;font-size:.73rem;font-weight:600;margin-right:4px;vertical-align:middle}
+.b-pass{background:#1a3a2a;color:var(--green);border:1px solid #26a641}
+.b-info{background:#1a2a3a;color:var(--accent);border:1px solid #388bfd}
+.b-warn{background:#3a2a1a;color:var(--yellow);border:1px solid #9e6a03}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1.4rem;margin:1rem 0}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.8rem;margin:1.2rem 0}
+.st{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1rem;text-align:center}
+.st .n{font-size:1.8rem;font-weight:700;display:block}
+.st .l{color:var(--muted);font-size:.82rem}
+.st.g .n{color:var(--green)}.st.b .n{color:var(--accent)}.st.p .n{color:var(--purple)}.st.c .n{color:var(--cyan)}
+table{width:100%;border-collapse:collapse;margin:.8rem 0;font-size:.88rem}
+th{background:var(--surface2);color:var(--muted);text-align:left;padding:9px 12px;font-weight:600;text-transform:uppercase;font-size:.72rem;letter-spacing:.5px}
+td{padding:9px 12px;border-bottom:1px solid var(--border)}
+tr:hover td{background:rgba(88,166,255,.04)}
+code{background:var(--surface2);padding:2px 6px;border-radius:4px;font-size:.83rem;font-family:'SF Mono',Consolas,monospace;color:var(--orange)}
+pre{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem 1.1rem;overflow-x:auto;margin:.8rem 0;font-size:.83rem;line-height:1.5}
+pre code{background:none;padding:0;color:var(--text)}
+.mermaid{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1.2rem;margin:1rem 0;text-align:center}
+.cap{color:var(--muted);font-size:.84rem;font-style:italic;margin:-.3rem 0 1.2rem .4rem;border-left:3px solid var(--border);padding-left:.7rem}
+.hi{background:linear-gradient(135deg,rgba(88,166,255,.07),rgba(188,140,255,.07));border:1px solid rgba(88,166,255,.18);border-radius:10px;padding:1.3rem;margin:1.2rem 0}
+.masked{color:var(--green);font-weight:600}
+.raw{color:var(--red);text-decoration:line-through;opacity:.7}
+.links{display:flex;flex-wrap:wrap;gap:.6rem;margin:.8rem 0}
+.lc{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:.6rem .9rem;font-size:.83rem;transition:border-color .2s}
+.lc:hover{border-color:var(--accent);text-decoration:none}
+.sn{color:var(--muted);font-size:.82rem;margin-right:.3rem}
+.step{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:var(--accent);color:var(--bg);font-size:.78rem;font-weight:700;margin-right:.5rem;flex-shrink:0}
+.toc{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1rem 1.3rem;margin:1.2rem 0}
+.toc ul{list-style:none;padding:0}.toc li{padding:2px 0}.toc a{color:var(--text);font-size:.88rem}.toc a:hover{color:var(--accent)}
+.toc .tt{color:var(--muted);font-size:.78rem;text-transform:uppercase;letter-spacing:.5px;margin-bottom:.4rem}
+.io-box{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1rem 0}
+.io-box .io{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1.2rem}
+.io .io-label{font-size:.75rem;text-transform:uppercase;letter-spacing:.5px;margin-bottom:.5rem;font-weight:600}
+.io .io-label.input{color:var(--accent)}
+.io .io-label.output{color:var(--green)}
+.io .io-label.span{color:var(--purple)}
+.io .io-label.masked-label{color:var(--yellow)}
+@media(max-width:700px){.io-box{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr}}
+footer{margin-top:2.5rem;padding-top:1.2rem;border-top:1px solid var(--border);color:var(--muted);font-size:.78rem;text-align:center}
+nav{position:sticky;top:0;z-index:100;background:rgba(13,17,23,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:.55rem 0}
+nav .nw{max-width:1100px;margin:0 auto;padding:0 1.5rem;display:flex;align-items:center;gap:.3rem;flex-wrap:wrap}
+nav a{color:var(--muted);font-size:.78rem;padding:3px 9px;border-radius:6px;transition:all .15s;white-space:nowrap}
+nav a:hover{color:var(--text);background:var(--surface);text-decoration:none}
+nav .brand{color:var(--accent);font-weight:600;font-size:.82rem;margin-right:.5rem}
+.tutorial-step{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1.3rem;margin:1rem 0}
+.tutorial-step h4{color:var(--cyan);margin:0 0 .5rem;font-size:.95rem}
+.coverage-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1rem;margin:1rem 0}
+.cov-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1.1rem}
+.cov-card h4{color:var(--purple);font-size:.9rem;margin:0 0 .5rem}
+.cov-card ul{margin:.3rem 0 0 1.2rem;font-size:.85rem;color:var(--muted)}
+.cov-card li{padding:1px 0}
+</style>
+</head>
+<body>
+
+<nav>
+<div class="nw">
+<a class="brand" href="#top">AgentCore Observability</a>
+<a href="#s1">What It Does</a>
+<a href="#s2">Architecture</a>
+<a href="#s3">Spring Integration</a>
+<a href="#s4">GenAI Attributes</a>
+<a href="#s5">PII Masking</a>
+<a href="#s6">Bedrock Testing</a>
+<a href="#s7">Test Coverage</a>
+<a href="#s8">Verification</a>
+<a href="#s9">Tutorial</a>
+<a href="#s10">References</a>
+</div>
+</nav>
+
+<div class="wrap" id="top">
+
+<h1>Spring AI AgentCore Observability</h1>
+<p class="sub">
+Documentation for <a href="https://github.com/vaquarkhan/spring-ai-agentcore-observability">spring-ai-agentcore-observability</a>
+&bull; Tested with real AWS Bedrock &bull; April 2026<br>
+Community proposal: <a href="https://github.com/spring-ai-community/community/issues/26">spring-ai-community/community#26</a>
+</p>
+
+<div class="stats">
+<div class="st g"><span class="n">37</span><span class="l">Tests Passed</span></div>
+<div class="st b"><span class="n">25</span><span class="l">Features Tested</span></div>
+<div class="st p"><span class="n">100%</span><span class="l">JaCoCo Coverage</span></div>
+<div class="st c"><span class="n">2</span><span class="l">Real Bedrock Tests</span></div>
+</div>
+
+<div class="toc">
+<div class="tt">Contents</div>
+<ul>
+<li><a href="#s1">1. What This Library Does</a></li>
+<li><a href="#s2">2. Architecture</a></li>
+<li><a href="#s3">3. How It Works with Spring - Integration Deep Dive</a></li>
+<li><a href="#s4">4. GenAI Span Attributes</a></li>
+<li><a href="#s5">5. PII Masking</a></li>
+<li><a href="#s6">6. Real AWS Bedrock Testing - Exact Inputs &amp; Outputs</a></li>
+<li><a href="#s7">7. What the Tests Cover - Detailed Breakdown</a></li>
+<li><a href="#s8">8. Feature Verification</a></li>
+<li><a href="#s9">9. Quick Start Tutorial</a></li>
+<li><a href="#s10">10. References</a></li>
+</ul>
+</div>
+
+<!-- ================================================================ -->
+<h2 id="s1"><span class="sn">1.</span> What This Library Does</h2>
+
+<p>When you build an AI agent with <a href="https://github.com/spring-ai-community/spring-ai-bedrock-agentcore">Spring AI Bedrock AgentCore</a>, your app exposes <code>POST /invocations</code>. Every prompt goes through AgentCore's controller to your <code>@AgentCoreInvocation</code> method, which calls AWS Bedrock and returns a <code>ChatResponse</code>.</p>
+
+<p>Out of the box, you only get generic HTTP spans like "POST /invocations 800ms." Nothing about the AI model, tokens consumed, or whether the prompt contained personal information.</p>
+
+<p>This library adds three things automatically:</p>
+<ul style="margin:.4rem 0 .4rem 1.5rem">
+<li><strong>GenAI telemetry</strong> - enriches every span with <a href="https://opentelemetry.io/docs/specs/semconv/gen-ai/gen-ai-spans/">OpenTelemetry GenAI semantic convention</a> attributes: model name, token counts, finish reasons, operation type.</li>
+<li><strong>Token metrics</strong> - records a <code>gen_ai.client.token.usage</code> histogram so you can track consumption in Grafana, Datadog, etc.</li>
+<li><strong>PII masking</strong> - intercepts every span before export and redacts emails, SSNs, credit cards, and phone numbers. Sensitive data never leaves the process.</li>
+</ul>
+<p>Zero code changes required. Add the Maven dependency and Spring Boot auto-configuration handles the rest.</p>
+
+<!-- ================================================================ -->
+<h2 id="s2"><span class="sn">2.</span> Architecture</h2>
+
+<div class="mermaid">
+graph LR
+  A["Client<br>POST /invocations"] --> B["AgentCore<br>InvocationsController"]
+  B --> C["AOP Aspect<br>intercepts"]
+  C --> D["Your Agent<br>@AgentCoreInvocation"]
+  D --> E["AWS Bedrock"]
+  E --> D
+  D --> C
+  C --> F["Enrich Span<br>gen_ai.* attributes"]
+  F --> G["Record Histogram<br>token metrics"]
+  F --> H["PiiMaskingSpanExporter"]
+  H --> I["Regex Redaction"]
+  I --> J["Clean Span to<br>OTLP Collector"]
+  style A fill:#1a2a3a,stroke:#388bfd,color:#e6edf3
+  style E fill:#1a3a2a,stroke:#26a641,color:#e6edf3
+  style H fill:#3a2a1a,stroke:#9e6a03,color:#e6edf3
+  style J fill:#1a3a2a,stroke:#26a641,color:#e6edf3
+</div>
+<p class="cap"><strong>How it works:</strong> A client sends a prompt to <code>/invocations</code>. AgentCore's controller receives it. The AOP aspect wraps the call, creating an OpenTelemetry span. Your agent service calls Bedrock and gets a <code>ChatResponse</code> with the model's reply and token counts. The aspect extracts GenAI attributes (provider, model, tokens, finish reasons) and sets them on the span. It records token counts into a histogram metric. When the span is exported, the <code>PiiMaskingSpanExporter</code> applies regex redaction for emails, SSNs, credit cards, and phones, then forwards the clean span to your collector.</p>
+
+<!-- ================================================================ -->
+<h2 id="s3"><span class="sn">3.</span> How It Works with Spring - Integration Deep Dive</h2>
+
+<p>This library is designed as a standard Spring Boot starter. It plugs into three Spring ecosystems: Spring Boot auto-configuration, Spring AOP, and the OpenTelemetry Spring Boot starter. Here is how each piece fits together.</p>
+
+<h3>3.1 Auto-Configuration</h3>
+<p>The entry point is <code>AgentCoreObservabilityAutoConfiguration</code>, registered via the standard <code>META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports</code> file. Spring Boot discovers it at startup. The class is annotated with <code>@ConditionalOnClass(AgentCoreInvocation.class)</code>, so it only activates when the AgentCore starter (<code>spring-ai-bedrock-agentcore-starter</code>) is on the classpath. If you remove AgentCore, this library does nothing.</p>
+
+<div class="mermaid">
+graph TD
+  A["Spring Boot starts"] --> B{"AgentCoreInvocation.class<br>on classpath?"}
+  B -- Yes --> C["Auto-config activates"]
+  C --> D["PiiMasker bean<br>regex patterns compiled once"]
+  C --> E["AutoConfigurationCustomizerProvider<br>wraps SpanExporter with PiiMaskingSpanExporter"]
+  C --> F["Tracer + Meter beans<br>scoped to observability module"]
+  C --> G["AOP Aspect bean<br>targets AgentCoreInvocationsController"]
+  B -- No --> H["Library dormant<br>no beans created"]
+  style B fill:#1a2a3a,stroke:#388bfd,color:#e6edf3
+  style C fill:#1a3a2a,stroke:#26a641,color:#e6edf3
+  style H fill:#2a1a1a,stroke:#f85149,color:#e6edf3
+</div>
+<p class="cap"><strong>Conditional activation:</strong> When AgentCore is present, four beans are created: (1) <code>PiiMasker</code> compiles regex patterns once at startup, (2) an <code>AutoConfigurationCustomizerProvider</code> wraps whatever span exporter is configured (OTLP, logging, etc.) with the PII-masking wrapper, (3) a <code>Tracer</code> and <code>Meter</code> scoped to this library, and (4) the AOP aspect. When AgentCore is absent, zero beans are registered.</p>
+
+<h3>3.2 Spring AOP - Why the Controller, Not the Agent Bean</h3>
+<p>The AOP aspect uses an <code>@Around</code> pointcut that targets <code>AgentCoreInvocationsController.handleJsonInvocation()</code> and <code>handleTextInvocation()</code>. This is a deliberate design choice. AgentCore's <code>AgentCoreMethodScanner</code> uses reflection to find <code>@AgentCoreInvocation</code> methods on beans. If Spring AOP creates a CGLIB proxy around your agent service, the proxy class may not retain the annotation on overridden methods, which would prevent AgentCore from registering your invocation handler. By targeting the controller instead, your agent bean stays a plain <code>@Service</code> with no proxy interference.</p>
+
+<h3>3.3 Spring AI Types Used</h3>
+<p>The library reads telemetry data from Spring AI's response objects. It does not replace Spring AI's built-in observation hooks - it complements them by adding AgentCore-specific GenAI attributes at the HTTP controller layer.</p>
+
+<div class="card">
+<table>
+<thead><tr><th>Spring AI Type</th><th>What the Library Reads</th><th>Maps To</th></tr></thead>
+<tbody>
+<tr><td><code>ChatResponse</code></td><td><code>hasToolCalls()</code></td><td><code>gen_ai.operation.name</code> (chat vs execute_tool)</td></tr>
+<tr><td><code>ChatResponseMetadata</code></td><td><code>getModel()</code></td><td><code>gen_ai.request.model</code>, <code>gen_ai.response.model</code></td></tr>
+<tr><td><code>Usage</code></td><td><code>getPromptTokens()</code>, <code>getCompletionTokens()</code></td><td><code>gen_ai.usage.input_tokens</code>, <code>gen_ai.usage.output_tokens</code></td></tr>
+<tr><td><code>ChatResponseMetadata</code></td><td><code>get("cacheReadInputTokens")</code></td><td>Added to <code>gen_ai.usage.input_tokens</code></td></tr>
+<tr><td><code>Generation</code></td><td><code>getMetadata().getFinishReason()</code></td><td><code>gen_ai.response.finish_reasons</code></td></tr>
+<tr><td><code>AssistantMessage</code></td><td><code>getText()</code></td><td><code>gen_ai.completion</code> span event (opt-in)</td></tr>
+</tbody>
+</table>
+</div>
+
+<h3>3.4 OpenTelemetry SDK Integration</h3>
+<p>The library uses the <code>opentelemetry-spring-boot-starter</code> which auto-configures the OTel SDK. The PII masking exporter is injected via <code>AutoConfigurationCustomizerProvider</code> - a standard OTel SDK extension point that lets you customize the span exporter pipeline. The customizer wraps whatever exporter is configured (OTLP, logging, etc.) with <code>PiiMaskingSpanExporter</code>, so masking happens regardless of your export destination.</p>
+
+<h3>3.5 Package Structure</h3>
+<div class="card">
+<table>
+<thead><tr><th>Package</th><th>Classes</th><th>Responsibility</th></tr></thead>
+<tbody>
+<tr><td><code>autoconfigure</code></td><td><code>AgentCoreObservabilityAutoConfiguration</code></td><td>Spring Boot auto-config: conditional activation, bean registration</td></tr>
+<tr><td><code>telemetry</code></td><td><code>AgentCoreInvocationObservabilityAspect</code><br><code>GenAiTelemetrySupport</code></td><td>AOP aspect for span enrichment + GenAI semantic convention constants</td></tr>
+<tr><td><code>masking</code></td><td><code>PiiMasker</code><br><code>MaskingSpanData</code><br><code>PiiMaskingSpanExporter</code></td><td>PII redaction: regex engine, span data decorator, exporter wrapper</td></tr>
+</tbody>
+</table>
+</div>
+
+<!-- ================================================================ -->
+<h2 id="s4"><span class="sn">4.</span> GenAI Span Attributes</h2>
+
+<div class="mermaid">
+graph TD
+  CR["ChatResponse"] --> M["ChatResponseMetadata"]
+  CR --> G["List of Generations"]
+  CR --> TC["hasToolCalls()"]
+  M --> MD["getModel()"]
+  M --> U["getUsage()"]
+  M --> CA["get('cacheReadInputTokens')"]
+  U --> PT["getPromptTokens()"]
+  U --> CT["getCompletionTokens()"]
+  G --> GM["Generation.getMetadata()"]
+  GM --> FR["getFinishReason()"]
+  MD -->|"gen_ai.request.model<br>gen_ai.response.model"| S["Span Attributes"]
+  PT -->|"gen_ai.usage.input_tokens<br>(+ cache tokens)"| S
+  CT -->|"gen_ai.usage.output_tokens"| S
+  CA -->|"added to input total"| S
+  FR -->|"gen_ai.response.finish_reasons"| S
+  TC -->|"gen_ai.operation.name<br>chat or execute_tool"| S
+  style CR fill:#1a2a3a,stroke:#388bfd,color:#e6edf3
+  style S fill:#1a3a2a,stroke:#26a641,color:#e6edf3
+</div>
+<p class="cap"><strong>Mapping:</strong> The aspect reads the <code>ChatResponse</code> returned by Bedrock. Model name goes to <code>gen_ai.request.model</code> and <code>gen_ai.response.model</code>. Prompt tokens + cache read tokens become <code>gen_ai.usage.input_tokens</code>. Completion tokens become <code>gen_ai.usage.output_tokens</code>. Finish reasons are collected from each Generation. If the response has tool calls, the operation is <code>execute_tool</code>; otherwise <code>chat</code>. Provider and system are always <code>aws.bedrock</code>.</p>
+
+<!-- ================================================================ -->
+<h2 id="s5"><span class="sn">5.</span> PII Masking</h2>
+
+<div class="mermaid">
+graph LR
+  A["Raw Span<br>(may contain PII)"] --> B["PiiMaskingSpanExporter"]
+  B --> C["MaskingSpanData wrapper"]
+  C --> D["PiiMasker.mask()"]
+  D --> E["SSN: ###-##-####"]
+  D --> F["Email: j***@***.com"]
+  D --> G["Card: 4111-****-****-1111"]
+  D --> H["Phone: ###-###-####"]
+  E --> K["Clean Span"]
+  F --> K
+  G --> K
+  H --> K
+  K --> L["Delegate Exporter"]
+  style A fill:#2a1a1a,stroke:#f85149,color:#e6edf3
+  style K fill:#1a3a2a,stroke:#26a641,color:#e6edf3
+</div>
+<p class="cap"><strong>Pipeline:</strong> Every span passes through <code>PiiMaskingSpanExporter</code> before export. It wraps each <code>SpanData</code> in a <code>MaskingSpanData</code> decorator that lazily masks all string span attributes and selectively masks event attributes (prompt, completion, password keys, <code>gen_ai.content.*</code> events). Four regex patterns run in sequence: SSN, credit card (13-19 digits, keeps first/last 4), email, and US phone. Results are cached per span.</p>
+
+<div class="card">
+<table>
+<thead><tr><th>PII Type</th><th>Raw Input</th><th>After Masking</th></tr></thead>
+<tbody>
+<tr><td>Email</td><td><code><span class="raw">jane@example.com</span></code></td><td><code><span class="masked">j***@***.com</span></code></td></tr>
+<tr><td>SSN</td><td><code><span class="raw">123-45-6789</span></code></td><td><code><span class="masked">###-##-####</span></code></td></tr>
+<tr><td>Credit Card</td><td><code><span class="raw">4111111111111111</span></code></td><td><code><span class="masked">4111-****-****-1111</span></code></td></tr>
+<tr><td>Phone</td><td><code><span class="raw">212-555-0199</span></code></td><td><code><span class="masked">###-###-####</span></code></td></tr>
+</tbody>
+</table>
+</div>
+
+<!-- ================================================================ -->
+<h2 id="s6"><span class="sn">6.</span> Real AWS Bedrock Testing - Exact Inputs &amp; Outputs</h2>
+
+<p>The original 35 tests in this project all use synthetic (mocked) <code>ChatResponse</code> objects. They prove the logic is correct but never call a real AI model. We added 2 integration tests that make actual HTTPS calls to AWS Bedrock to prove the library works end-to-end with a live model.</p>
+
+<h3>Environment</h3>
+<div class="card">
+<table>
+<tr><td style="color:var(--muted);width:150px">AWS Region</td><td>us-east-1</td></tr>
+<tr><td style="color:var(--muted)">Model</td><td>anthropic.claude-3-haiku-20240307-v1:0</td></tr>
+<tr><td style="color:var(--muted)">Java</td><td>OpenJDK 17.0.17 (Microsoft)</td></tr>
+<tr><td style="color:var(--muted)">Spring Boot</td><td>3.5.9</td></tr>
+<tr><td style="color:var(--muted)">Spring AI</td><td>1.0.0</td></tr>
+<tr><td style="color:var(--muted)">Test dependency</td><td><code>spring-ai-starter-model-bedrock-converse</code> (provides real <code>ChatModel</code>)</td></tr>
+</table>
+</div>
+
+<h3>How the test works</h3>
+<p>We created a <code>RealBedrockAgentService</code> that injects Spring AI's real <code>ChatModel</code> (backed by Bedrock Converse API) and delegates to it:</p>
+<pre><code>@Service
+public class RealBedrockAgentService {
+    private final ChatModel chatModel;
+
+    public RealBedrockAgentService(ChatModel chatModel) {
+        this.chatModel = chatModel;
+    }
+
+    @AgentCoreInvocation
+    public ChatResponse invoke(String prompt) {
+        return chatModel.call(new Prompt(prompt));
+    }
+}</code></pre>
+<p>The test boots a full <code>@SpringBootTest</code> context, uses <code>MockMvc</code> to POST to <code>/invocations</code>, and captures exported spans via an <code>InMemorySpanExporter</code> wrapped by <code>PiiMaskingSpanExporter</code>. If AWS credentials are missing, the tests auto-skip.</p>
+
+<!-- TEST 1 -->
+<h3>Test 1: Token Count Verification</h3>
+<p>This test sends a simple math question to Bedrock and verifies that the observability library captures the real token counts from the model's response.</p>
+
+<div class="io-box">
+<div class="io">
+  <div class="io-label input">HTTP Input - what we sent</div>
+  <pre><code>POST /invocations
+Content-Type: text/plain
+
+What is 2 plus 2? Answer in one word.</code></pre>
+</div>
+<div class="io">
+  <div class="io-label output">Bedrock Response - what came back</div>
+  <pre><code>HTTP 200 OK
+
+{
+  "result": {
+    "output": {
+      "text": "Four.",
+      "messageType": "ASSISTANT"
+    },
+    "metadata": {
+      "finishReason": "end_turn"
+    }
+  },
+  "metadata": {
+    "usage": {
+      "promptTokens": 21,
+      "completionTokens": 5,
+      "totalTokens": 26
+    }
+  }
+}</code></pre>
+</div>
+</div>
+
+<div class="io-box">
+<div class="io" style="grid-column:1/-1">
+  <div class="io-label span">Captured OpenTelemetry Span - what the library produced</div>
+  <pre><code>Span name: "chat"
+Span kind: INTERNAL
+Status:    OK
+
+Attributes:
+  gen_ai.provider.name       = "aws.bedrock"
+  gen_ai.operation.name      = "chat"
+  gen_ai.system              = "aws.bedrock"
+  gen_ai.usage.input_tokens  = 21        &larr; real count from Bedrock
+  gen_ai.usage.output_tokens = 5         &larr; real count from Bedrock
+
+Events:
+  gen_ai.content.prompt:
+    gen_ai.prompt = "What is 2 plus 2? Answer in one word."
+  gen_ai.content.completion:
+    gen_ai.completion = "Four."</code></pre>
+</div>
+</div>
+
+<div class="hi">
+<p><span class="badge b-pass">PASS</span> The library correctly extracted real token counts (21 input, 5 output) from the Bedrock response and set them as <code>gen_ai.usage.*</code> span attributes. The provider is <code>aws.bedrock</code>, the operation is <code>chat</code>, and the prompt/completion text was captured as span events (because <code>OTEL_GENAI_CAPTURE_CONTENT=true</code>).</p>
+</div>
+
+<!-- TEST 2 -->
+<h3>Test 2: PII Masking Verification</h3>
+<p>This test sends a prompt containing personal information (email and SSN) and verifies that the PII is redacted in the exported span before it would reach any telemetry backend.</p>
+
+<div class="io-box">
+<div class="io">
+  <div class="io-label input">HTTP Input - prompt with PII</div>
+  <pre><code>POST /invocations
+Content-Type: text/plain
+
+My email is jane@example.com and SSN is 123-45-6789. Just say OK.</code></pre>
+</div>
+<div class="io">
+  <div class="io-label output">Bedrock Response</div>
+  <pre><code>HTTP 200 OK
+
+(Bedrock responded successfully  - 
+ the model's reply text is not the
+ focus of this test)</code></pre>
+</div>
+</div>
+
+<div class="io-box">
+<div class="io">
+  <div class="io-label masked-label">Prompt as it appears in the EXPORTED span (after PII masking)</div>
+  <pre><code>Event: gen_ai.content.prompt
+  gen_ai.prompt = "My email is <span class="masked">j***@***.com</span> and SSN is <span class="masked">###-##-####</span>. Just say OK."</code></pre>
+  <table style="margin-top:.8rem">
+  <thead><tr><th>PII</th><th>Raw (what user typed)</th><th>In exported span</th><th>Status</th></tr></thead>
+  <tbody>
+  <tr><td>Email</td><td><code><span class="raw">jane@example.com</span></code></td><td><code><span class="masked">j***@***.com</span></code></td><td><span class="badge b-pass">MASKED</span></td></tr>
+  <tr><td>SSN</td><td><code><span class="raw">123-45-6789</span></code></td><td><code><span class="masked">###-##-####</span></code></td><td><span class="badge b-pass">MASKED</span></td></tr>
+  </tbody>
+  </table>
+</div>
+</div>
+
+<div class="hi">
+<p><span class="badge b-pass">PASS</span> The raw PII values (<code>jane@example.com</code>, <code>123-45-6789</code>) do not appear anywhere in the exported span. The <code>PiiMaskingSpanExporter</code> replaced them with <code>j***@***.com</code> and <code>###-##-####</code> before the span was handed to the exporter. This redaction happens inside the JVM process - the sensitive data never travels over the network.</p>
+</div>
+
+<!-- SEQUENCE DIAGRAM -->
+<h3>Full Sequence - What Happened During the Tests</h3>
+
+<div class="mermaid">
+sequenceDiagram
+  participant T as JUnit Test
+  participant M as MockMvc
+  participant C as AgentCore Controller
+  participant A as AOP Aspect
+  participant S as RealBedrockAgentService
+  participant B as AWS Bedrock (us-east-1)<br>Claude 3 Haiku
+  participant E as InMemorySpanExporter<br>+ PiiMasker
+
+  Note over T,E: Test 1 - Token Count Verification
+  T->>M: POST /invocations<br>"What is 2 plus 2? Answer in one word."
+  M->>C: handleTextInvocation()
+  C->>A: @Around intercept - creates span
+  A->>S: invoke(prompt)
+  S->>B: HTTPS to Bedrock Converse API
+  B-->>S: ChatResponse: "Four."<br>promptTokens=21, completionTokens=5
+  S-->>A: ChatResponse
+  A->>A: span.setAttribute(gen_ai.usage.input_tokens, 21)
+  A->>A: span.setAttribute(gen_ai.usage.output_tokens, 5)
+  A->>A: span.addEvent(gen_ai.content.prompt)
+  A-->>C: return response
+  C-->>M: HTTP 200
+  M-->>T: "Four."
+  A->>E: export span (PII masking applied)
+  T->>E: assert input_tokens=21, output_tokens=5 ✓
+
+  Note over T,E: Test 2 - PII Masking Verification
+  T->>M: POST /invocations<br>"My email is jane@example.com<br>and SSN is 123-45-6789"
+  M->>C: handleTextInvocation()
+  C->>A: @Around intercept
+  A->>S: invoke(prompt with PII)
+  S->>B: HTTPS to Bedrock
+  B-->>S: ChatResponse
+  S-->>A: ChatResponse
+  A->>A: span.addEvent(prompt = raw text with PII)
+  A->>E: PiiMaskingSpanExporter masks prompt:<br>jane@example.com → j***@***.com<br>123-45-6789 → ###-##-####
+  T->>E: assert: no raw PII in span ✓<br>assert: masked values present ✓
+</div>
+<p class="cap"><strong>Sequence:</strong> Both tests follow the same path: JUnit sends an HTTP POST via MockMvc, which hits the AgentCore controller. The AOP aspect intercepts, creates a span, and lets the call proceed to the real agent service. The agent service makes a real HTTPS call to Bedrock in us-east-1. When the response returns, the aspect enriches the span with GenAI attributes and records metrics. The span is then exported through the PII masking wrapper. Test 1 asserts the token counts match what Bedrock returned. Test 2 asserts that PII in the prompt was redacted before the span reached the exporter.</p>
+
+<!-- ================================================================ -->
+<h2 id="s7"><span class="sn">7.</span> What the Tests Cover - Detailed Breakdown</h2>
+
+<pre><code>$ mvn clean verify
+
+[INFO] Tests run: 37, Failures: 0, Errors: 0, Skipped: 0
+[INFO] All coverage checks have been met.
+[INFO] BUILD SUCCESS  (32.335 s)</code></pre>
+
+<p>The test suite has 37 tests organized in three layers: 2 real AWS Bedrock integration tests, 2 synthetic Spring Boot integration tests, and 33 unit tests. Together they cover every production code path. JaCoCo enforces 100% line and branch coverage on all instrumented classes.</p>
+
+<div class="coverage-grid">
+
+<div class="cov-card">
+<h4>🔴 RealBedrockIntegrationTest (2 tests)</h4>
+<p style="font-size:.84rem;color:var(--muted)">Real HTTPS calls to AWS Bedrock in us-east-1. Auto-skips without AWS credentials.</p>
+<ul>
+<li><strong>realBedrockCallProducesGenAiSpanWithTokenCounts</strong> - sends "What is 2 plus 2?" to Claude 3 Haiku, asserts <code>gen_ai.usage.input_tokens=21</code>, <code>output_tokens=5</code>, <code>provider=aws.bedrock</code></li>
+<li><strong>realBedrockCallMasksPiiInPromptAndCompletion</strong> - sends prompt with <code>jane@example.com</code> and SSN <code>123-45-6789</code>, asserts they are masked to <code>j***@***.com</code> and <code>###-##-####</code> in exported span</li>
+</ul>
+</div>
+
+<div class="cov-card">
+<h4>🟡 AgentCoreObservabilityIntegrationTest (1 test)</h4>
+<p style="font-size:.84rem;color:var(--muted)">Full @SpringBootTest with synthetic ChatResponse. No AWS needed.</p>
+<ul>
+<li><strong>invocationsEmitsGenAiAttributesAndMasksPiiInExportedSpans</strong> - POST /invocations with email, SSN, credit card, phone. Asserts GenAI span attributes, PII masked in prompt event, token counts from synthetic metadata (42 input + 3 cache = 45, 7 output)</li>
+</ul>
+</div>
+
+<div class="cov-card">
+<h4>🔵 AgentCoreInvocationObservabilityAspectTest (20 tests)</h4>
+<p style="font-size:.84rem;color:var(--muted)">Unit tests for the AOP aspect. Every code path covered.</p>
+<ul>
+<li><strong>recordsOkWhenResultIsNotChatResponse</strong> - non-ChatResponse returns still get OK status, no histogram recorded</li>
+<li><strong>recordsErrorAndMapsTimeout</strong> - TimeoutException → <code>error.type="timeout"</code></li>
+<li><strong>mapsSecurityKeywordInExceptionName</strong> - SslSecurityException → <code>"authentication_failure"</code></li>
+<li><strong>mapsAuthenticationFailure</strong> - AuthenticationException → <code>"authentication_failure"</code></li>
+<li><strong>mapsGenericErrorType</strong> - IllegalStateException → <code>"illegalstateexception"</code></li>
+<li><strong>applyGenAiUsesToolOperationWhenToolCallsPresent</strong> - <code>hasToolCalls()=true</code> → operation <code>"execute_tool"</code></li>
+<li><strong>treatsNullCompletionTokensAsZero</strong> - null completionTokens → <code>output_tokens=0</code></li>
+<li><strong>skipsFinishReasonWhenGenerationMetadataMissing</strong> - null generation metadata handled gracefully</li>
+<li><strong>modelMetricsUseUnknownWhenModelGetterReturnsNull</strong> - null model → histogram uses "unknown"</li>
+<li><strong>baseInputTokensNullPromptTokens</strong> - null promptTokens → <code>input_tokens=0</code></li>
+<li><strong>addsCacheReadTokensFromMetadata</strong> - 10 prompt + 5 cache = 15 input tokens</li>
+<li><strong>ignoresNonNumericCacheReadTokens</strong> - string "nope" in cache field → ignored, uses prompt tokens only</li>
+<li><strong>extractCompletionReturnsNullWhenOutputMissing</strong> - null AssistantMessage output → no completion event</li>
+<li><strong>extractCompletionReturnsNullWhenGenerationMissing</strong> - null Generation → no completion event</li>
+<li><strong>extractCompletionSwallowsRuntimeExceptionFromGeneration</strong> - exception in getResult() → swallowed, no crash</li>
+<li><strong>handlesNullPromptArgsAndSkipsPromptExtraction</strong> - null args → no prompt event</li>
+<li><strong>extractPromptReturnsNullWhenNoStringArgument</strong> - non-String args → no prompt event</li>
+<li><strong>appliesTokenHistogramsAndHandlesNullUsage</strong> - null usage → histogram records 0 for both</li>
+<li><strong>usesUnknownModelWhenMetadataMissingModel</strong> - no model in metadata → "unknown" in histogram attributes</li>
+<li><strong>captureContent flag off</strong> - when OTEL_GENAI_CAPTURE_CONTENT is false, no prompt/completion events added</li>
+</ul>
+</div>
+
+<div class="cov-card">
+<h4>🔵 MaskingSpanDataTest (5 tests)</h4>
+<p style="font-size:.84rem;color:var(--muted)">Tests the span data decorator that selectively masks attributes and events.</p>
+<ul>
+<li><strong>masksStringAttributesAndCachesResults</strong> - email in span attribute masked, long attributes untouched, results cached</li>
+<li><strong>masksGenAiEventsAndGenericContentEvents</strong> - prompt event, completion event, gen_ai.content.custom event, password key event all masked; safe "other" event untouched</li>
+<li><strong>masksEventAttributesForPromptAndCompletionSemantics</strong> - wrong key on prompt/completion events still masked (event name match), mixed types handled</li>
+<li><strong>masksByKeyNameHeuristics</strong> - keys containing "prompt", "completion", "password" are masked regardless of event name</li>
+<li><strong>leavesPlainAttributesWhenEventNameDoesNotMatchGenAiConventions</strong> - empty event name + non-sensitive key → passthrough</li>
+</ul>
+</div>
+
+<div class="cov-card">
+<h4>🔵 PiiMaskerTest (4 tests)</h4>
+<p style="font-size:.84rem;color:var(--muted)">Tests the regex redaction engine.</p>
+<ul>
+<li><strong>masksEmailSsnCardAndPhone</strong> - all four PII types in one string, all masked correctly</li>
+<li><strong>returnsNullOrEmptyUnchanged</strong> - null → null, empty → empty</li>
+<li><strong>masksSingleCharacterEmailLocalPart</strong> - <code>j@example.com</code> → <code>*@***.com</code></li>
+<li><strong>domainSegmentFallsBackForMalformedDomains</strong> - "single" and "a." → fallback to "com"</li>
+</ul>
+</div>
+
+<div class="cov-card">
+<h4>🔵 Other Tests (5 tests)</h4>
+<p style="font-size:.84rem;color:var(--muted)">Exporter delegation, sample app, constants.</p>
+<ul>
+<li><strong>PiiMaskingSpanExporterTest (2)</strong> - flush/shutdown delegate correctly, export wraps spans with MaskingSpanData</li>
+<li><strong>AgentCoreObservabilitySampleApplicationTest (1)</strong> - main() delegates to SpringApplication.run()</li>
+<li><strong>GenAiTelemetrySupportTest (2)</strong> - constants reachable, private constructor covered</li>
+</ul>
+</div>
+
+</div>
+
+<!-- ================================================================ -->
+<h2 id="s8"><span class="sn">8.</span> Feature Verification</h2>
+
+<table>
+<thead><tr><th>#</th><th>Feature</th><th>Status</th><th>How Tested</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>Spring Boot auto-configuration</td><td><span class="badge b-pass">✓</span></td><td>Both @SpringBootTest contexts boot without manual bean registration</td></tr>
+<tr><td>2</td><td>AOP wraps AgentCore controller</td><td><span class="badge b-pass">✓</span></td><td>Real Bedrock POST /invocations produces GenAI span</td></tr>
+<tr><td>3</td><td><code>gen_ai.provider.name = aws.bedrock</code></td><td><span class="badge b-pass">✓</span></td><td>Real Bedrock span attribute</td></tr>
+<tr><td>4</td><td><code>gen_ai.operation.name</code> chat/execute_tool</td><td><span class="badge b-pass">✓</span></td><td>Real: "chat". Unit test: "execute_tool" when hasToolCalls()=true</td></tr>
+<tr><td>5</td><td><code>gen_ai.usage.input_tokens</code></td><td><span class="badge b-pass">✓</span></td><td>Real Bedrock: 21 tokens</td></tr>
+<tr><td>6</td><td><code>gen_ai.usage.output_tokens</code></td><td><span class="badge b-pass">✓</span></td><td>Real Bedrock: 5 tokens</td></tr>
+<tr><td>7</td><td><code>gen_ai.request.model</code></td><td><span class="badge b-pass">✓</span></td><td>Set from ChatResponseMetadata.getModel()</td></tr>
+<tr><td>8</td><td><code>gen_ai.response.finish_reasons</code></td><td><span class="badge b-pass">✓</span></td><td>Collected from Generation metadata, comma-joined</td></tr>
+<tr><td>9</td><td>Token histogram metric</td><td><span class="badge b-pass">✓</span></td><td>meter.histogramBuilder("gen_ai.client.token.usage"), unit {token}</td></tr>
+<tr><td>10</td><td>OTEL_GENAI_CAPTURE_CONTENT gating</td><td><span class="badge b-pass">✓</span></td><td>Real test: prompt event present when true. Unit: absent when false</td></tr>
+<tr><td>11</td><td>PII masking - email</td><td><span class="badge b-pass">✓</span></td><td>Real Bedrock: jane@example.com → j***@***.com</td></tr>
+<tr><td>12</td><td>PII masking - SSN</td><td><span class="badge b-pass">✓</span></td><td>Real Bedrock: 123-45-6789 → ###-##-####</td></tr>
+<tr><td>13</td><td>PII masking - credit card</td><td><span class="badge b-pass">✓</span></td><td>Synthetic test: 4111111111111111 → 4111-****-****-1111</td></tr>
+<tr><td>14</td><td>PII masking - phone</td><td><span class="badge b-pass">✓</span></td><td>Unit test: 212-555-0199 → ###-###-####</td></tr>
+<tr><td>15</td><td>Bedrock cache token support</td><td><span class="badge b-pass">✓</span></td><td>Unit: cacheReadInputTokens=5 + promptTokens=10 = input_tokens=15</td></tr>
+<tr><td>16</td><td>Error: timeout classification</td><td><span class="badge b-pass">✓</span></td><td>TimeoutException → error.type="timeout"</td></tr>
+<tr><td>17</td><td>Error: auth classification</td><td><span class="badge b-pass">✓</span></td><td>AuthenticationException → "authentication_failure"</td></tr>
+<tr><td>18</td><td>Error: generic classification</td><td><span class="badge b-pass">✓</span></td><td>IllegalStateException → "illegalstateexception"</td></tr>
+<tr><td>19</td><td>@ConditionalOnClass activation</td><td><span class="badge b-pass">✓</span></td><td>Auto-config only activates with AgentCore on classpath</td></tr>
+<tr><td>20</td><td>Aspect targets controller not user bean</td><td><span class="badge b-pass">✓</span></td><td>Pointcut names AgentCoreInvocationsController explicitly</td></tr>
+<tr><td>21</td><td>6 production classes</td><td><span class="badge b-pass">✓</span></td><td>AutoConfig, Aspect, TelemetrySupport, PiiMasker, MaskingSpanData, Exporter</td></tr>
+<tr><td>22</td><td>100% JaCoCo coverage gate</td><td><span class="badge b-pass">✓</span></td><td>"All coverage checks have been met" - LINE and BRANCH at 1.00</td></tr>
+<tr><td>23</td><td>Java 17+, Spring Boot 3.5.x, Spring AI 1.0.0</td><td><span class="badge b-pass">✓</span></td><td>pom.xml verified</td></tr>
+<tr><td>24</td><td>OTel instrumentation BOM 2.14.0</td><td><span class="badge b-pass">✓</span></td><td>pom.xml verified</td></tr>
+<tr><td>25</td><td>Apache 2.0 license</td><td><span class="badge b-pass">✓</span></td><td>LICENSE file + headers in all source files</td></tr>
+</tbody>
+</table>
+
+<!-- ================================================================ -->
+<h2 id="s9"><span class="sn">9.</span> Quick Start Tutorial</h2>
+
+<p>This tutorial walks you through adding observability and PII masking to an existing AgentCore application in under 5 minutes.</p>
+
+<div class="tutorial-step">
+<h4><span class="step">1</span> Prerequisites</h4>
+<ul style="margin:.3rem 0 0 1.2rem;font-size:.9rem">
+<li>Java 17+</li>
+<li>Maven 3.9+</li>
+<li>An existing Spring Boot project with <code>spring-ai-bedrock-agentcore-starter</code></li>
+<li>AWS credentials configured (<code>aws configure</code>, env vars, or IAM role)</li>
+<li>A Bedrock model enabled in your account (e.g., Claude 3 Haiku in us-east-1)</li>
+</ul>
+</div>
+
+<div class="tutorial-step">
+<h4><span class="step">2</span> Add the Dependency</h4>
+<p>Add this library to your <code>pom.xml</code>. The Spring AI BOM and OTel BOM manage transitive versions.</p>
+<pre><code>&lt;dependency&gt;
+  &lt;groupId&gt;org.springaicommunity.agentcore&lt;/groupId&gt;
+  &lt;artifactId&gt;spring-ai-agentcore-observability&lt;/artifactId&gt;
+  &lt;version&gt;0.1.0-SNAPSHOT&lt;/version&gt;
+&lt;/dependency&gt;</code></pre>
+<p>That's it. No <code>@EnableXxx</code> annotation, no bean registration, no configuration class. Spring Boot auto-configuration handles everything.</p>
+</div>
+
+<div class="tutorial-step">
+<h4><span class="step">3</span> Write Your Agent (if you haven't already)</h4>
+<p>Your agent service is a normal Spring <code>@Service</code> with an <code>@AgentCoreInvocation</code> method that returns a <code>ChatResponse</code>:</p>
+<pre><code>@Service
+public class MyAgent {
+
+    private final ChatModel chatModel;
+
+    public MyAgent(ChatModel chatModel) {
+        this.chatModel = chatModel;
+    }
+
+    @AgentCoreInvocation
+    public ChatResponse invoke(String prompt) {
+        return chatModel.call(new Prompt(prompt));
+    }
+}</code></pre>
+</div>
+
+<div class="tutorial-step">
+<h4><span class="step">4</span> Configure Your Bedrock Model</h4>
+<p>In <code>application.properties</code>:</p>
+<pre><code>spring.ai.bedrock.aws.region=us-east-1
+spring.ai.bedrock.converse.chat.options.model=anthropic.claude-3-haiku-20240307-v1:0
+spring.ai.bedrock.converse.chat.options.max-tokens=500</code></pre>
+</div>
+
+<div class="tutorial-step">
+<h4><span class="step">5</span> (Optional) Enable Prompt/Completion Capture</h4>
+<p>By default, the library only captures token counts and metadata. To also capture the full prompt and completion text in span events, set:</p>
+<pre><code># In application.properties or as an environment variable
+OTEL_GENAI_CAPTURE_CONTENT=true</code></pre>
+<p>When enabled, the <code>PiiMaskingSpanExporter</code> will automatically redact emails, SSNs, credit cards, and phone numbers from the captured text before export.</p>
+</div>
+
+<div class="tutorial-step">
+<h4><span class="step">6</span> Configure Your OTel Exporter</h4>
+<p>To see spans in your console (for development):</p>
+<pre><code>otel.traces.exporter=logging</code></pre>
+<p>To send spans to an OTLP collector (Jaeger, Grafana Tempo, etc.):</p>
+<pre><code>otel.traces.exporter=otlp
+otel.exporter.otlp.endpoint=http://localhost:4318</code></pre>
+</div>
+
+<div class="tutorial-step">
+<h4><span class="step">7</span> Run and Test</h4>
+<pre><code># Start the application
+mvn spring-boot:run
+
+# Send a test prompt
+curl -X POST http://localhost:8080/invocations \
+  -H "Content-Type: text/plain" \
+  -d "What is the capital of France?"
+
+# Check the health endpoint
+curl http://localhost:8080/ping</code></pre>
+<p>You should see a 200 response with the model's answer. If you configured <code>otel.traces.exporter=logging</code>, check your console for a span with <code>gen_ai.provider.name=aws.bedrock</code> and real token counts.</p>
+</div>
+
+<div class="tutorial-step">
+<h4><span class="step">8</span> Verify PII Masking</h4>
+<p>Send a prompt with PII and check the exported span:</p>
+<pre><code>curl -X POST http://localhost:8080/invocations \
+  -H "Content-Type: text/plain" \
+  -d "My email is test@company.com and my SSN is 987-65-4321. Say hello."</code></pre>
+<p>In the exported span event, you should see:</p>
+<pre><code>gen_ai.prompt = "My email is t***@***.com and my SSN is ###-##-####. Say hello."</code></pre>
+<p>The raw PII never leaves your JVM process.</p>
+</div>
+
+<div class="tutorial-step">
+<h4><span class="step">9</span> Run the Test Suite</h4>
+<pre><code># Full suite (37 tests - real Bedrock tests auto-skip without AWS creds)
+mvn clean verify
+
+# Only real Bedrock tests
+mvn test -Dtest="RealBedrockIntegrationTest"
+
+# Only synthetic tests (no AWS needed)
+mvn test -Dtest="AgentCoreObservabilityIntegrationTest"</code></pre>
+</div>
+
+<!-- ================================================================ -->
+<h2 id="s10"><span class="sn">10.</span> References</h2>
+
+<h3>Project</h3>
+<div class="links">
+<a class="lc" href="https://github.com/vaquarkhan/spring-ai-agentcore-observability">📁 GitHub Repository</a>
+<a class="lc" href="https://github.com/vaquarkhan/spring-ai-agentcore-observability/blob/main/README.md">📄 README</a>
+<a class="lc" href="https://github.com/spring-ai-community/community/issues/26">💬 Community Issue #26</a>
+<a class="lc" href="https://github.com/vaquarkhan/spring-ai-agentcore-observability/blob/main/doc/bedrock-testing-tutorial.md">📖 Bedrock Testing Tutorial</a>
+</div>
+
+<h3>OpenTelemetry GenAI Conventions</h3>
+<p>The <code>gen_ai.*</code> attribute names used by this library follow these specifications:</p>
+<div class="links">
+<a class="lc" href="https://opentelemetry.io/docs/specs/semconv/gen-ai/">🌐 GenAI Overview</a>
+<a class="lc" href="https://opentelemetry.io/docs/specs/semconv/gen-ai/gen-ai-spans/">📊 GenAI Spans</a>
+<a class="lc" href="https://opentelemetry.io/docs/specs/semconv/gen-ai/gen-ai-metrics/">📈 GenAI Metrics</a>
+<a class="lc" href="https://opentelemetry.io/docs/specs/semconv/gen-ai/gen-ai-events/">💬 GenAI Events</a>
+<a class="lc" href="https://opentelemetry.io/docs/specs/semconv/general/trace/#handling-sensitive-data">🔒 Sensitive Data Handling</a>
+</div>
+
+<h3>Spring AI &amp; Bedrock</h3>
+<div class="links">
+<a class="lc" href="https://docs.spring.io/spring-ai/reference/index.html">🌿 Spring AI Reference</a>
+<a class="lc" href="https://docs.spring.io/spring-ai/reference/api/chat/bedrock-converse.html">☁️ Bedrock Converse API (Spring AI)</a>
+<a class="lc" href="https://docs.spring.io/spring-ai/reference/observability/index.html">👁️ Spring AI Observability</a>
+<a class="lc" href="https://github.com/spring-ai-community/spring-ai-bedrock-agentcore">🤖 AgentCore Starter</a>
+</div>
+
+<h3>AWS Bedrock</h3>
+<div class="links">
+<a class="lc" href="https://docs.aws.amazon.com/bedrock/latest/userguide/conversation-inference.html">📚 Bedrock Converse API</a>
+<a class="lc" href="https://docs.aws.amazon.com/bedrock/latest/userguide/agentcore-observability.html">👁️ AgentCore Observability (AWS)</a>
+<a class="lc" href="https://docs.aws.amazon.com/bedrock/latest/userguide/getting-started.html">🚀 Getting Started</a>
+</div>
+
+<h3>OpenTelemetry + Spring Boot</h3>
+<div class="links">
+<a class="lc" href="https://opentelemetry.io/docs/zero-code/java/spring-boot-starter/getting-started">🌱 OTel Spring Boot Starter</a>
+<a class="lc" href="https://opentelemetry.io/docs/zero-code/java/spring-boot-starter/sdk-configuration/">⚙️ SDK Configuration</a>
+<a class="lc" href="https://docs.spring.io/spring-boot/reference/actuator/observability.html">📊 Spring Boot Observability</a>
+</div>
+
+<footer>
+<a href="https://github.com/vaquarkhan/spring-ai-agentcore-observability">spring-ai-agentcore-observability</a> v0.1.0-SNAPSHOT
+&bull; Tested with real AWS Bedrock (Claude 3 Haiku, us-east-1)
+&bull; 37 tests, 100% coverage
+</footer>
+
+</div>
+<script>
+mermaid.initialize({startOnLoad:true,theme:'dark',themeVariables:{primaryColor:'#1a2a3a',primaryTextColor:'#e6edf3',primaryBorderColor:'#388bfd',lineColor:'#30363d',secondaryColor:'#161b22',tertiaryColor:'#1c2333',fontFamily:'-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif',fontSize:'13px'}});
+</script>
+</body>
+</html>
